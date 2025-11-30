@@ -51,5 +51,8 @@ depends-on = [{"task" = "build", "args" = ["{{day}}", "{{config}}"]}]
 
 [dependencies]
 cmake = "==3.31"
-llvm = "==21.1"
+clang = "==21.1"
+clangxx = "==21.1"
+llvmdev = "==21.1"
+clang-tools = "==21.1"
 ninja = "==1.13"

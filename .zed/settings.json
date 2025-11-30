@@ -1,0 +1,10 @@
+{
+    "lsp": {
+        "clangd": {
+            "binary": {
+                "path": ".pixi/envs/default/Library/bin/clangd.exe",
+                "arguments": []
+            }
+        }
+    }
+}
