@@ -1,10 +1,12 @@
+#include <expected>
 #include <print>
 
-#include "args.hpp"
+#include "common.hpp"
 
 int main( int argc, char *argv[] )
 {
 	args::Parser parser( argc, argv );
-	std::print( "Hello, World!" );
+	auto file = reader::read_file<std::string>( "pixi.toml" );
+	std::print( "file: {}", file.value() );
 	return 0;
 }
