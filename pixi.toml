@@ -1,0 +1,31 @@
+[workspace]
+channels = ["conda-forge"]
+name = "aoc2025"
+platforms = ["win-64"]
+version = "0.1.0"
+
+[tasks.configure]
+args = [{"arg" = "day"}]
+cmd = [
+    "cmake",
+    "-G",
+    "Ninja Multi-Config",
+    "-B",
+    "build",
+    "-DCURRENT_DAY={{day}}",
+]
+
+[tasks.build]
+args = [{"arg" = "day"},{"arg" = "config", "default" = "Release"}]
+cmd = ["cmake", "--build", "build", "--config", "{{ config }}"]
+depends-on = [{"task" = "configure", "args" = ["{{day}}"]}]
+
+[tasks.run]
+args = [{"arg" = "day"},{"arg" = "config", "default" = "Release"}]
+cmd = ["build/bin/{{config}}/{{day}}.exe"]
+depends-on = [{"task" = "build", "args" = ["{{day}}", "{{config}}"]}]
+
+[dependencies]
+cmake = "==3.31"
+llvm = "==21.1"
+ninja = "==1.13"
