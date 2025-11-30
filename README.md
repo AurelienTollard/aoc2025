@@ -3,13 +3,13 @@
 Run solutions using [pixi](https://pixi.sh):
 
 ```bash
-pixi run run day{{your_day}}
+pixi run run day{{your_day}} {{Release|Debug}} {{extra_args}}
 ```
 
 For example, to run day 1:
 
 ```bash
-pixi run run day1 {{Release|Debug}} {{extra_args}}
+pixi run run day1
 ```
 
 Pixi will automatically download all dependencies.
