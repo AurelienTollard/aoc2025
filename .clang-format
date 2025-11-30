@@ -1,0 +1,44 @@
+BraceWrapping:
+  AfterEnum: true
+  AfterStruct: true
+  SplitEmptyFunction: false
+  AfterFunction: true
+  AfterControlStatement: Always
+  AfterNamespace: true
+  AfterClass: true
+  BeforeElse: true
+  BeforeCatch: true
+  AfterUnion: true
+ColumnLimit: 120
+UseTab: ForIndentation
+TabWidth: 4
+IndentWidth: 4
+BreakBeforeBraces: Custom
+Cpp11BracedListStyle: false
+SpacesInParentheses: true
+SpaceBeforeParens: Never
+AllowShortFunctionsOnASingleLine: Inline
+NamespaceIndentation: All
+FixNamespaceComments: false
+AlignConsecutiveAssignments: None
+AlignConsecutiveDeclarations: None
+AlignTrailingComments: false
+BreakBeforeTernaryOperators: true
+BreakConstructorInitializers: BeforeComma
+BinPackParameters: false
+AlignAfterOpenBracket: AlwaysBreak
+KeepEmptyLinesAtTheStartOfBlocks: false
+InsertNewlineAtEOF: true
+IncludeCategories:
+  - Regex: '^<windows\.h>'
+    Priority: 1
+    SortPriority: 1
+  - Regex: '^<.*\.h(pp)?>'
+    Priority: 1
+    SortPriority: 2
+  - Regex: '^<.*>'
+    Priority: 1
+    SortPriority: 3
+  - Regex: '^".*"'
+    Priority: 4
+IncludeBlocks: Regroup

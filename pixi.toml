@@ -1,7 +1,7 @@
 [workspace]
-channels = ["conda-forge"]
+channels = ["https://prefix.dev/conda-forge"]
 name = "aoc2025"
-platforms = ["win-64"]
+platforms = ["linux-64", "win-64", "osx-64", "osx-arm64"]
 version = "0.1.0"
 
 [tasks.configure]
@@ -21,8 +21,32 @@ cmd = ["cmake", "--build", "build", "--config", "{{ config }}"]
 depends-on = [{"task" = "configure", "args" = ["{{day}}"]}]
 
 [tasks.run]
-args = [{"arg" = "day"},{"arg" = "config", "default" = "Release"}]
-cmd = ["build/bin/{{config}}/{{day}}.exe"]
+args = [
+    {"arg" = "day"},
+    {"arg" = "config", "default" = "Release"},
+    # Hacks to get flexible number of arguments..
+    {"arg" = "arg1", "default" = ""},
+    {"arg" = "arg2", "default" = ""},
+    {"arg" = "arg3", "default" = ""},
+    {"arg" = "arg4", "default" = ""},
+    {"arg" = "arg5", "default" = ""},
+    {"arg" = "arg6", "default" = ""},
+    {"arg" = "arg7", "default" = ""},
+    {"arg" = "arg8", "default" = ""},
+    {"arg" = "arg9", "default" = ""}
+]
+cmd = [
+    "build/bin/{{config}}/{{day}}.exe",
+    "{{arg1}}",
+    "{{arg2}}",
+    "{{arg3}}",
+    "{{arg4}}",
+    "{{arg5}}",
+    "{{arg6}}",
+    "{{arg7}}",
+    "{{arg8}}",
+    "{{arg9}}"
+]
 depends-on = [{"task" = "build", "args" = ["{{day}}", "{{config}}"]}]
 
 [dependencies]
