@@ -1,9 +1,11 @@
 #pragma once
 
+#include <cstdint>
 #include <expected>
 #include <filesystem>
 #include <fstream>
 #include <string>
+#include <vector>
 
 namespace reader
 {
@@ -15,7 +17,9 @@ namespace reader
 		ReadFailed,
 	};
 
-	template <typename T> inline std::expected<T, ReadError> read_file( const std::filesystem::path &path )
+	template <typename T>
+	    requires std::same_as<T, std::string> || std::same_as<T, std::vector<uint8_t>>
+	inline std::expected<T, ReadError> read_file( const std::filesystem::path &path )
 	{
 		if( !std::filesystem::exists( path ) )
 		{

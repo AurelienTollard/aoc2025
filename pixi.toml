@@ -20,10 +20,10 @@ args = [{"arg" = "day"},{"arg" = "config", "default" = "Release"}]
 cmd = ["cmake", "--build", "build", "--config", "{{ config }}"]
 depends-on = [{"task" = "configure", "args" = ["{{day}}"]}]
 
-[tasks.run]
+# Hack for windows until pixi 0.60.0
+[target.win-64.tasks.run]
 args = [
     {"arg" = "day"},
-    {"arg" = "config", "default" = "Release"},
     # Hacks to get flexible number of arguments..
     {"arg" = "arg1", "default" = ""},
     {"arg" = "arg2", "default" = ""},
@@ -36,7 +36,7 @@ args = [
     {"arg" = "arg9", "default" = ""}
 ]
 cmd = [
-    "build/bin/{{config}}/{{day}}.exe",
+    "build/bin/Release/{{day}}.exe",
     "{{arg1}}",
     "{{arg2}}",
     "{{arg3}}",
@@ -47,7 +47,35 @@ cmd = [
     "{{arg8}}",
     "{{arg9}}"
 ]
-depends-on = [{"task" = "build", "args" = ["{{day}}", "{{config}}"]}]
+depends-on = [{"task" = "build", "args" = ["{{day}}", "Release"]}]
+
+[tasks.run]
+args = [
+    {"arg" = "day"},
+    # Hacks to get flexible number of arguments..
+    {"arg" = "arg1", "default" = ""},
+    {"arg" = "arg2", "default" = ""},
+    {"arg" = "arg3", "default" = ""},
+    {"arg" = "arg4", "default" = ""},
+    {"arg" = "arg5", "default" = ""},
+    {"arg" = "arg6", "default" = ""},
+    {"arg" = "arg7", "default" = ""},
+    {"arg" = "arg8", "default" = ""},
+    {"arg" = "arg9", "default" = ""}
+]
+cmd = [
+    "build/bin/Release/{{day}}",
+    "{{arg1}}",
+    "{{arg2}}",
+    "{{arg3}}",
+    "{{arg4}}",
+    "{{arg5}}",
+    "{{arg6}}",
+    "{{arg7}}",
+    "{{arg8}}",
+    "{{arg9}}"
+]
+depends-on = [{"task" = "build", "args" = ["{{day}}", "Release"]}]
 
 [dependencies]
 cmake = "==3.31"
