@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <cmath>
 #include <cstdint>
 #include <print>
 #include <ranges>
@@ -31,33 +32,20 @@ std::vector<Ranges> parse_input( std::string_view file )
 	return ranges;
 }
 
-bool is_valid_id( const std::string_view id )
+size_t dec_size( const uint64_t id )
 {
-	if( id.empty() || id.length() % 2 != 0 )
-	{
-		return true;
-	}
-
-	std::string_view view{ id };
-	std::size_t half = id.length() / 2;
-	std::string_view first = view.substr( 0, half );
-	std::string_view second = view.substr( half );
-
-	return first != second;
+	if( id == 0 )
+		return 1;
+	return static_cast<int>( std::log10( id ) ) + 1;
 }
 
-std::vector<std::string_view> split_size( std::string_view input, size_t size )
+bool is_valid_id( const uint64_t id )
 {
-	std::vector<std::string_view> result;
-	result.reserve( input.length() / size );
-
-	const std::size_t total = input.size();
-	for( std::size_t i = 0; i < total; i += size )
-	{
-		result.emplace_back( input.substr( i, size ) );
-	}
-
-	return result;
+	size_t size = dec_size( id );
+	uint64_t divisor = static_cast<uint64_t>( std::pow( 10, size / 2 ) );
+	uint64_t first = id % divisor;
+	uint64_t second = id / divisor;
+	return first != second;
 }
 
 std::vector<uint64_t> divisors( uint64_t n )
@@ -78,17 +66,25 @@ std::vector<uint64_t> divisors( uint64_t n )
 	return result;
 }
 
-bool is_valid_id_complex( std::string_view id )
+bool is_valid_id_complex( uint64_t id )
 {
-	auto divs = divisors( id.length() );
+	size_t size = dec_size( id );
+	auto divs = divisors( size );
 	divs.pop_back();
 	for( uint64_t i : divs )
 	{
-		std::vector<std::string_view> parts = split_size( id, i );
-		std::string_view first = parts.front();
-		bool all_equal = std::ranges::any_of(
-		    std::next( parts.begin() ), parts.end(), [&]( const std::string_view &sub ) { return first != sub; } );
-		if( !all_equal )
+		uint64_t divisor = static_cast<uint64_t>( std::pow( 10, i ) );
+		std::vector<uint64_t> parts( size / i );
+		uint64_t local_id = id;
+
+		for( uint64_t j = 0; j < size / i; ++j )
+		{
+			parts[j] = local_id % divisor;
+			local_id /= divisor;
+		}
+		bool all_equal = std::ranges::all_of(
+		    std::next( parts.begin() ), parts.end(), [&]( const uint64_t &part ) { return parts.front() == part; } );
+		if( all_equal )
 		{
 			return false;
 		}
@@ -107,7 +103,7 @@ int main( int argc, char *argv[] )
 	{
 		for( uint64_t id = range.first_id; id <= range.last_id; ++id )
 		{
-			if( !is_valid_id( std::to_string( id ) ) )
+			if( !is_valid_id( id ) )
 			{
 				output += id;
 			}
@@ -120,7 +116,7 @@ int main( int argc, char *argv[] )
 	{
 		for( uint64_t id = range.first_id; id <= range.last_id; ++id )
 		{
-			if( !is_valid_id_complex( std::to_string( id ) ) )
+			if( !is_valid_id_complex( id ) )
 			{
 				output += id;
 			}
