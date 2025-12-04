@@ -18,6 +18,7 @@ add_library(aoc2025_lib STATIC
 )
 target_include_directories(aoc2025_lib PUBLIC ${COMMON_FILES})
 link_libraries(aoc2025_lib)
+add_link_options(LINKER:/DEBUG,/PDB:myapp.pdb)
 
 add_executable(${CURRENT_DAY}
     ${CURRENT_DAY}/main.cpp
