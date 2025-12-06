@@ -25,7 +25,6 @@ inline constexpr uint64_t apply_operation( Operation op, uint64_t a, uint64_t b 
 	default:
 		return 0;
 	}
-	return 0;
 }
 
 struct Problem
@@ -34,30 +33,64 @@ struct Problem
 	Operation operation;
 };
 
-std::vector<Problem> parse_file( std::string_view file )
+inline std::string_view trim_line_ending( std::string_view sv )
 {
+	if( !sv.empty() && sv.back() == '\r' )
+		sv.remove_suffix( 1 );
+	return sv;
+}
+
+inline Operation parse_operator( std::string_view sv )
+{
+	if( sv == "+" )
+		return Operation::ADD;
+	else if( sv == "*" )
+		return Operation::MULTIPLY;
+	return Operation::UNKNOWN;
+}
+
+struct ParsedInput
+{
+	std::vector<std::string_view> lines;
 	std::vector<Problem> problems;
-	bool first = true;
-	auto lines = std::views::split( file, '\n' ) |
-	             std::views::transform( []( auto line ) { return std::string_view( line.begin(), line.end() - 1 ); } ) |
-	             std::ranges::to<std::vector>();
-	auto operators = std::views::split( lines.back(), ' ' ) | std::views::transform( []( auto str ) {
-		                 auto sv = std::string_view( str.begin(), str.end() );
-		                 if( sv == "+" )
-			                 return Operation::ADD;
-		                 else if( sv == "*" )
-			                 return Operation::MULTIPLY;
-		                 return Operation::UNKNOWN;
+};
+
+ParsedInput parse_common( std::string_view file )
+{
+	ParsedInput result;
+
+	result.lines = std::views::split( file, '\n' ) | std::views::transform( []( auto line ) {
+		               return trim_line_ending( std::string_view( line.begin(), line.end() ) );
+	               } ) |
+	               std::ranges::to<std::vector>();
+
+	auto operators = std::views::split( result.lines.back(), ' ' ) | std::views::transform( []( auto str ) {
+		                 return parse_operator( std::string_view( str.begin(), str.end() ) );
 	                 } ) |
 	                 std::views::filter( []( auto op ) { return op != Operation::UNKNOWN; } );
-	std::ranges::for_each( operators, [&]( auto op ) { problems.push_back( { {}, op } ); } );
+
+	std::ranges::for_each( operators, [&]( auto op ) { result.problems.push_back( { {}, op } ); } );
+
+	return result;
+}
+
+uint64_t compute_result( const std::vector<Problem> &problems )
+{
+	return std::ranges::fold_left( problems, 0ull, []( auto acc, const auto &problem ) {
+		return acc + std::ranges::fold_left(
+		                 problem.numbers | std::views::drop( 1 ), problem.numbers.front(),
+		                 [&]( auto acc, auto num ) { return apply_operation( problem.operation, acc, num ); } );
+	} );
+}
+
+std::vector<Problem> parse_file( std::string_view file )
+{
+	auto [lines, problems] = parse_common( file );
 
 	for( auto line : lines | std::views::take( lines.size() - 1 ) )
 	{
-		auto numbers = std::views::split( line, ' ' ) | std::views::filter( []( auto str ) {
-			               auto sv = std::string_view( str.begin(), str.end() );
-			               return !sv.empty() && sv != "\r";
-		               } );
+		auto numbers = std::views::split( line, ' ' ) |
+		               std::views::filter( []( auto str ) { return !std::string_view( str ).empty(); } );
 
 		size_t counter = 0;
 		for( auto number : numbers )
@@ -71,28 +104,14 @@ std::vector<Problem> parse_file( std::string_view file )
 
 std::vector<Problem> parse_file_col( std::string_view file )
 {
-	std::vector<Problem> problems;
-	bool first = true;
-	auto lines = std::views::split( file, '\n' ) |
-	             std::views::transform( []( auto line ) { return std::string_view( line.begin(), line.end() - 1 ); } ) |
-	             std::ranges::to<std::vector>();
-	auto operators = std::views::split( lines.back(), ' ' ) | std::views::transform( []( auto str ) {
-		                 auto sv = std::string_view( str.begin(), str.end() );
-		                 if( sv == "+" )
-			                 return Operation::ADD;
-		                 else if( sv == "*" )
-			                 return Operation::MULTIPLY;
-		                 return Operation::UNKNOWN;
-	                 } ) |
-	                 std::views::filter( []( auto op ) { return op != Operation::UNKNOWN; } );
-	std::ranges::for_each( operators, [&]( auto op ) { problems.push_back( { {}, op } ); } );
+	auto [lines, problems] = parse_common( file );
 
 	size_t counter = 0;
-	for( int i = 0; i < lines[0].size(); ++i )
+	for( size_t i = 0; i < lines[0].size(); ++i )
 	{
 		size_t num = 0;
 		size_t pow10 = 1;
-		for( int j = lines.size() - 2; j >= 0; --j )
+		for( size_t j = lines.size() - 1; j-- > 0; )
 		{
 			char c = lines[j][i];
 			if( c == ' ' )
@@ -122,22 +141,9 @@ int main( int argc, char *argv[] )
 {
 	args::Parser parser( argc, argv );
 	auto file1 = reader::read_file<std::string>( parser.get_or( "file", "day6/in.txt" ) );
-	std::vector<Problem> problems = parse_file( file1.value() );
 
-	uint64_t part1 = std::ranges::fold_left( problems, 0ull, []( auto acc, auto problem ) {
-		return acc + std::ranges::fold_left(
-		                 problem.numbers | std::views::drop( 1 ), problem.numbers.front(),
-		                 [&]( auto acc, auto num ) { return apply_operation( problem.operation, acc, num ); } );
-	} );
-	std::println( "Part1 {} ", part1 );
-
-	std::vector<Problem> problems2 = parse_file_col( file1.value() );
-	uint64_t part2 = std::ranges::fold_left( problems2, 0ull, []( auto acc, auto problem ) {
-		return acc + std::ranges::fold_left(
-		                 problem.numbers | std::views::drop( 1 ), problem.numbers.front(),
-		                 [&]( auto acc, auto num ) { return apply_operation( problem.operation, acc, num ); } );
-	} );
-	std::println( "Part2 {} ", part2 );
+	std::println( "Part1 {} ", compute_result( parse_file( file1.value() ) ) );
+	std::println( "Part2 {} ", compute_result( parse_file_col( file1.value() ) ) );
 
 	return 0;
 }
